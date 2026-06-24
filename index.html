@@ -1,26 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="pastel">
 <head>
     <meta charset="UTF-8">
-    <title>Squishy Showcase</title>
+    <title>Squishy Universe</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1 class="title">Squishy Showcase</h1>
-    <p class="subtitle">Click any squishy to hear its sound.</p>
+    <!-- Loading overlay -->
+    <div id="loading-overlay">
+        <div class="loader-squishy"></div>
+        <div class="loader-text">Preparing squishy universe...</div>
+    </div>
 
-    <div class="squishy-grid">
-        <div class="squishy squishy1" data-sound="1"></div>
-        <div class="squishy squishy2" data-sound="2"></div>
-        <div class="squishy squishy3" data-sound="3"></div>
-        <div class="squishy squishy4" data-sound="4"></div>
-        <div class="squishy squishy5" data-sound="5"></div>
-        <div class="squishy squishy6" data-sound="6"></div>
-        <div class="squishy squishy7" data-sound="7"></div>
-        <div class="squishy squishy8" data-sound="8"></div>
-        <div class="squishy squishy9" data-sound="9"></div>
-        <div class="squishy squishy10" data-sound="10"></div>
+    <!-- Animated background -->
+    <div class="bg-animated"></div>
+
+    <!-- Main board -->
+    <div class="board glass">
+        <header class="board-header">
+            <div class="title-block">
+                <h1>Squishy Universe</h1>
+                <p>30 unique squishies · satisfying sounds · fully animated UI</p>
+            </div>
+
+            <div class="board-tabs">
+                <button class="tab-btn active" data-tab="squishies">Squishies</button>
+                <button class="tab-btn" data-tab="info">Info</button>
+                <button class="tab-btn" data-tab="settings">Settings</button>
+                <button class="tab-btn" data-tab="about">About</button>
+            </div>
+        </header>
+
+        <!-- Tab: Squishies -->
+        <section class="tab-content active" id="tab-squishies">
+            <div class="top-controls">
+                <div class="control-group">
+                    <label>Theme</label>
+                    <select id="theme-select">
+                        <option value="pastel">Pastel</option>
+                        <option value="neon">Neon</option>
+                        <option value="glass">Glass</option>
+                        <option value="sunset">Sunset</option>
+                        <option value="ocean">Ocean</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Dark mode</label>
+                    <label class="switch">
+                        <input type="checkbox" id="dark-toggle">
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+
+                <div class="control-group">
+                    <label>Volume</label>
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8">
+                </div>
+
+                <div class="control-group">
+                    <label>Mute</label>
+                    <button id="mute-btn" class="btn small">Mute</button>
+                </div>
+
+                <div class="control-group">
+                    <label>Squishy size</label>
+                    <input type="range" id="size-slider" min="0.7" max="1.5" step="0.05" value="1">
+                </div>
+
+                <div class="control-group buttons">
+                    <button id="random-btn" class="btn">Random squishy</button>
+                    <button id="shuffle-btn" class="btn">Shuffle styles</button>
+                    <button id="spotlight-toggle" class="btn">Spotlight mode</button>
+                </div>
+            </div>
+
+            <!-- Sound visualizer -->
+            <div class="visualizer glass">
+                <div class="visualizer-pulse" id="visualizer-pulse"></div>
+            </div>
+
+            <!-- Squishy grid -->
+            <div class="squishy-grid">
+                <!-- 30 squishies -->
+                <!-- 1–10: file sounds, 11–30: generated sounds -->
+                <!-- each has unique shape/color via CSS classes -->
+                <!-- data-audio="file" or "generated" -->
+                <!-- data-name / data-info for info panel -->
+                <!-- FILE-BASED (1–10) -->
+                <div class="squishy sq1"  data-id="1"  data-audio="file"      data-name="Berry Bubble"      data-info="Circle · uses your sound 1"></div>
+                <div class="squishy sq2"  data-id="2"  data-audio="file"      data-name="Sky Puff"         data-info="Rounded square · sound 2"></div>
+                <div class="squishy sq3"  data-id="3"  data-audio="file"      data-name="Mint Blob"        data-info="Organic blob · sound 3"></div>
+                <div class="squishy sq4"  data-id="4"  data-audio="file"      data-name="Sunny Melt"       data-info="Diagonal blob · sound 4"></div>
+                <div class="squishy sq5"  data-id="5"  data-audio="file"      data-name="Lavender Oval"    data-info="Oval pill · sound 5"></div>
+                <div class="squishy sq6"  data-id="6"  data-audio="file"      data-name="Cream Twist"      data-info="Twisted blob · sound 6"></div>
+                <div class="squishy sq7"  data-id="7"  data-audio="file"      data-name="Peach Jelly"      data-info="Jelly blob · sound 7"></div>
+                <div class="squishy sq8"  data-id="8"  data-audio="file"      data-name="Aqua Brick"       data-info="Rounded rectangle · sound 8"></div>
+                <div class="squishy sq9"  data-id="9"  data-audio="file"      data-name="Candy Swirl"      data-info="Multi-blob · sound 9"></div>
+                <div class="squishy sq10" data-id="10" data-audio="file"      data-name="Frost Wave"       data-info="Wave blob · sound 10"></div>
+
+                <!-- GENERATED (11–30) -->
+                <div class="squishy sq11" data-id="11" data-audio="generated" data-name="Electric Pop"     data-info="High squish pop · generated"></div>
+                <div class="squishy sq12" data-id="12" data-audio="generated" data-name="Deep Squish"      data-info="Low bassy squish · generated"></div>
+                <div class="squishy sq13" data-id="13" data-audio="generated" data-name="Glitch Jelly"     data-info="Wobbly glitch squish · generated"></div>
+                <div class="squishy sq14" data-id="14" data-audio="generated" data-name="Crystal Drop"     data-info="Chimey drip squish · generated"></div>
+                <div class="squishy sq15" data-id="15" data-audio="generated" data-name="Bubble Pop"       data-info="Fast bubble pop · generated"></div>
+                <div class="squishy sq16" data-id="16" data-audio="generated" data-name="Neon Pulse"       data-info="Pulsing squish tone · generated"></div>
+                <div class="squishy sq17" data-id="17" data-audio="generated" data-name="Soft Echo"        data-info="Echoey soft squish · generated"></div>
+                <div class="squishy sq18" data-id="18" data-audio="generated" data-name="Star Squish"      data-info="Sparkly squish · generated"></div>
+                <div class="squishy sq19" data-id="19" data-audio="generated" data-name="Void Jelly"       data-info="Dark hollow squish · generated"></div>
+                <div class="squishy sq20" data-id="20" data-audio="generated" data-name="Rainbow Puff"     data-info="Multi-color squish · generated"></div>
+                <div class="squishy sq21" data-id="21" data-audio="generated" data-name="Cloud Melt"       data-info="Soft cloud squish · generated"></div>
+                <div class="squishy sq22" data-id="22" data-audio="generated" data-name="Pixel Blob"       data-info="Retro pixel squish · generated"></div>
+                <div class="squishy sq23" data-id="23" data-audio="generated" data-name="Slime Ring"       data-info="Ring-shaped squish · generated"></div>
+                <div class="squishy sq24" data-id="24" data-audio="generated" data-name="Galaxy Puff"      data-info="Galaxy gradient squish · generated"></div>
+                <div class="squishy sq25" data-id="25" data-audio="generated" data-name="Sunrise Jelly"    data-info="Warm sunrise squish · generated"></div>
+                <div class="squishy sq26" data-id="26" data-audio="generated" data-name="Ocean Drop"       data-info="Cool ocean squish · generated"></div>
+                <div class="squishy sq27" data-id="27" data-audio="generated" data-name="Prism Blob"       data-info="Prismatic squish · generated"></div>
+                <div class="squishy sq28" data-id="28" data-audio="generated" data-name="Candy Ring"       data-info="Candy ring squish · generated"></div>
+                <div class="squishy sq29" data-id="29" data-audio="generated" data-name="Shadow Puff"      data-info="Shadowy squish · generated"></div>
+                <div class="squishy sq30" data-id="30" data-audio="generated" data-name="Aurora Jelly"     data-info="Aurora gradient squish · generated"></div>
+            </div>
+        </section>
+
+        <!-- Tab: Info -->
+        <section class="tab-content" id="tab-info">
+            <div class="info-panel">
+                <h2>Squishy Info</h2>
+                <p>Select a squishy to see its details here.</p>
+                <div class="info-details glass">
+                    <div><strong>Name:</strong> <span id="info-name">None selected</span></div>
+                    <div><strong>Description:</strong> <span id="info-desc">Click a squishy to view info.</span></div>
+                    <div><strong>Audio type:</strong> <span id="info-audio">—</span></div>
+                    <div><strong>ID:</strong> <span id="info-id">—</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab: Settings -->
+        <section class="tab-content" id="tab-settings">
+            <div class="settings-panel">
+                <h2>Settings</h2>
+                <p>Fine-tune how the squishy universe feels.</p>
+                <ul class="settings-list">
+                    <li>Theme & dark mode control</li>
+                    <li>Volume & mute for all sounds</li>
+                    <li>Squishy size scaling</li>
+                    <li>Spotlight mode for focused viewing</li>
+                    <li>Random & shuffle for playful chaos</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Tab: About -->
+        <section class="tab-content" id="tab-about">
+            <div class="about-panel">
+                <h2>About Squishy Universe</h2>
+                <p>
+                    This is a fully animated squishy playground with 30 unique shapes, colors, and satisfying sounds.
+                    The first 10 squishies use your own audio files, and the remaining 20 use generated squishy tones
+                    built with the Web Audio API.
+                </p>
+                <p>
+                    Everything runs from a single folder with no subfolders, designed for a clean, modern, sleek UI
+                    and easy expansion later (shops, upgrades, saving, etc.).
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Spotlight modal -->
+    <div id="spotlight-modal" class="spotlight-modal">
+        <div class="spotlight-content glass">
+            <button id="spotlight-close" class="btn small close-btn">✕</button>
+            <div class="spotlight-squishy-wrapper">
+                <div id="spotlight-squishy" class="spotlight-squishy"></div>
+            </div>
+            <div class="spotlight-info">
+                <h2 id="spotlight-name"></h2>
+                <p id="spotlight-desc"></p>
+                <p id="spotlight-audio"></p>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
