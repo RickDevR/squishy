@@ -4,6 +4,9 @@ let masterVolume = 0.8;
 let isMuted = false;
 let spotlightEnabled = false;
 
+// Cache for verified custom audio files
+const availableAudioFiles = {};
+
 // ====== AUDIO HELPERS ======
 function ensureAudioContext() {
     if (!audioContext) {
@@ -11,65 +14,109 @@ function ensureAudioContext() {
     }
 }
 
-// Play file-based sound (for squishy 1–10)
-function playFileSound(id) {
+// Check and play custom file or fallback to realistic procedural sound
+function playSquishySound(id) {
+    ensureAudioContext();
+
+    if (availableAudioFiles[id] === true) {
+        playFileSound(id);
+        return;
+    }
+    if (availableAudioFiles[id] === false) {
+        playRealisticSynthesizedSound(id);
+        return;
+    }
+
+    // Probe for custom file
     const wav = `squishy${id}.wav`;
-    const mp3 = `squishy${id}.mp3`;
     const audio = new Audio();
-
     audio.volume = isMuted ? 0 : masterVolume;
-
     audio.src = wav;
-    audio.onerror = () => {
-        audio.src = mp3;
+
+    audio.oncanplaythrough = () => {
+        availableAudioFiles[id] = true;
         audio.play().catch(() => {});
+    };
+
+    audio.onerror = () => {
+        const mp3 = `squishy${id}.mp3`;
+        const audioMp3 = new Audio(mp3);
+        audioMp3.volume = isMuted ? 0 : masterVolume;
+        audioMp3.oncanplaythrough = () => {
+            availableAudioFiles[id] = true;
+            audioMp3.play().catch(() => {});
+        };
+        audioMp3.onerror = () => {
+            availableAudioFiles[id] = false;
+            playRealisticSynthesizedSound(id);
+        };
+        audioMp3.play().catch(() => {
+            availableAudioFiles[id] = false;
+            playRealisticSynthesizedSound(id);
+        });
     };
 
     audio.play().catch(() => {});
 }
 
-// Play generated squishy sound (for squishy 11–30)
-function playGeneratedSquishySound(id) {
-    ensureAudioContext();
+function playFileSound(id) {
+    const audio = new Audio(`squishy${id}.wav`);
+    audio.volume = isMuted ? 0 : masterVolume;
+    audio.play().catch(() => {
+        const audioMp3 = new Audio(`squishy${id}.mp3`);
+        audioMp3.volume = isMuted ? 0 : masterVolume;
+        audioMp3.play().catch(() => {});
+    });
+}
+
+// Ultra-realistic multi-stage Web Audio squishy sound synthesizer
+function playRealisticSynthesizedSound(id) {
     const ctx = audioContext;
+    const now = ctx.currentTime;
 
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
     const noiseGain = ctx.createGain();
 
-    const now = ctx.currentTime;
+    // Frequency shaping for realistic foam compression feel
+    let baseFreq = 140 + ((id * 23) % 180);
+    osc.type = (id % 2 === 0) ? "triangle" : "sine";
 
-    // Base frequency and character per ID
-    let baseFreq = 220 + (id - 11) * 15;
-    if (id % 5 === 0) baseFreq += 80;
-    if (id % 7 === 0) baseFreq -= 60;
+    // Pitch drop and slow-rise simulation
+    osc.frequency.setValueAtTime(baseFreq * 1.6, now);
+    osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.5, now + 0.18);
+    osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.9, now + 0.35);
 
-    const waves = ["sine", "triangle", "square", "sawtooth"];
-    osc.type = waves[(id - 11) % waves.length];
-    osc.frequency.setValueAtTime(baseFreq, now);
+    // Lowpass filter for muffled, soft foam texture
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(800, now);
+    filter.frequency.linearRampToValueAtTime(400, now + 0.35);
 
-    // Volume envelope: fast attack, squishy decay
     const vol = isMuted ? 0 : masterVolume;
-    const duration = 0.25 + ((id - 11) * 0.01);
+    const duration = 0.38;
 
+    // Amplitude envelope: smooth squeeze attack and slow-release bounce
     gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(vol, now + 0.02);
+    gain.gain.linearRampToValueAtTime(vol * 0.95, now + 0.04);
     gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
-    // Add a bit of noise for "squish" texture
-    const bufferSize = 256;
+    // Filtered noise buffer for authentic squishy air/friction sound
+    const bufferSize = 512;
     const noise = ctx.createScriptProcessor(bufferSize, 1, 1);
     noise.onaudioprocess = function(e) {
         const output = e.outputBuffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) {
-            output[i] = (Math.random() * 2 - 1) * 0.2;
+            output[i] = (Math.random() * 2 - 1) * 0.3;
         }
     };
 
     noiseGain.gain.setValueAtTime(vol * 0.4, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
 
-    osc.connect(gain);
+    // Connections
+    osc.connect(filter);
+    filter.connect(gain);
     gain.connect(ctx.destination);
 
     noise.connect(noiseGain);
@@ -79,8 +126,10 @@ function playGeneratedSquishySound(id) {
     osc.stop(now + duration + 0.05);
 
     setTimeout(() => {
-        noise.disconnect();
-        noiseGain.disconnect();
+        try {
+            noise.disconnect();
+            noiseGain.disconnect();
+        } catch(e) {}
     }, (duration + 0.1) * 1000);
 }
 
@@ -88,20 +137,24 @@ function playGeneratedSquishySound(id) {
 function triggerVisualizer() {
     const pulse = document.getElementById("visualizer-pulse");
     pulse.classList.add("active");
-    setTimeout(() => pulse.classList.remove("active"), 200);
+    setTimeout(() => pulse.classList.remove("active"), 220);
 }
 
 // Random border-radius morph
 function randomMorph(squishy) {
-    const r = () => Math.floor(Math.random() * 70) + 30; // 30–100
-    const br = `${r()}% ${r()}% ${r()}% ${r()}%`;
-    squishy.style.borderRadius = br;
+    const r = () => Math.floor(Math.random() * 40) + 30;
+    const br = `${r()}% ${100 - r()}% ${r()}% ${100 - r()}% / ${100 - r()}% ${r()}% ${100 - r()}% ${r()}%`;
+    const inner = squishy.querySelector(".sq-inner");
+    if (inner && !squishy.classList.contains('sq-needle')) {
+        inner.style.borderRadius = br;
+    }
 }
 
-// Spotlight modal
+// Spotlight modal management
 function openSpotlight(squishy) {
     const modal = document.getElementById("spotlight-modal");
     const spotSq = document.getElementById("spotlight-squishy");
+    const spotEmoji = document.getElementById("spotlight-emoji");
     const nameEl = document.getElementById("spotlight-name");
     const descEl = document.getElementById("spotlight-desc");
     const audioEl = document.getElementById("spotlight-audio");
@@ -109,18 +162,19 @@ function openSpotlight(squishy) {
     const id = squishy.getAttribute("data-id");
     const name = squishy.getAttribute("data-name");
     const info = squishy.getAttribute("data-info");
-    const audioType = squishy.getAttribute("data-audio") === "file"
-        ? "Uses your audio file"
-        : "Uses generated squishy sound";
+    const emojiText = squishy.querySelector("span") ? squishy.querySelector("span").textContent : "";
 
-    // Copy style
-    const style = window.getComputedStyle(squishy);
+    const inner = squishy.querySelector(".sq-inner");
+    const style = window.getComputedStyle(inner || squishy);
     spotSq.style.background = style.background;
     spotSq.style.borderRadius = style.borderRadius;
+    spotEmoji.textContent = emojiText;
 
     nameEl.textContent = name;
     descEl.textContent = info;
-    audioEl.textContent = `Audio: ${audioType} (ID ${id})`;
+    audioEl.textContent = availableAudioFiles[id] === true 
+        ? `🎵 Custom Audio File Active (ID ${id})` 
+        : `✨ Realistic Synthesized Audio Active (ID ${id})`;
 
     modal.classList.add("active");
 }
@@ -129,7 +183,7 @@ function closeSpotlight() {
     document.getElementById("spotlight-modal").classList.remove("active");
 }
 
-// Random squishy highlight
+// Random highlight
 function highlightRandomSquishy() {
     const squishies = Array.from(document.querySelectorAll(".squishy"));
     if (!squishies.length) return;
@@ -139,23 +193,27 @@ function highlightRandomSquishy() {
     random.classList.add("highlighted");
 
     random.scrollIntoView({ behavior: "smooth", block: "center" });
-    setTimeout(() => random.classList.remove("highlighted"), 800);
+    setTimeout(() => random.classList.remove("highlighted"), 900);
 }
 
-// Shuffle styles (morph shapes)
+// Shuffle styles
 function shuffleStyles() {
     const squishies = Array.from(document.querySelectorAll(".squishy"));
-    squishies.forEach(s => randomMorph(s));
+    squishies.forEach(s => {
+        if (!s.classList.contains('sq-needle')) {
+            randomMorph(s);
+        }
+    });
 }
 
-// Update info tab when squishy clicked
+// Update info panel
 function updateInfoPanel(squishy) {
     const name = squishy.getAttribute("data-name");
     const info = squishy.getAttribute("data-info");
     const id = squishy.getAttribute("data-id");
-    const audioType = squishy.getAttribute("data-audio") === "file"
-        ? "File sound (your audio)"
-        : "Generated squishy sound";
+    const audioType = availableAudioFiles[id] === true 
+        ? `Custom Audio File (squishy${id}.wav/.mp3)` 
+        : `High-Fidelity Procedural Squish Sound`;
 
     document.getElementById("info-name").textContent = name;
     document.getElementById("info-desc").textContent = info;
@@ -163,7 +221,7 @@ function updateInfoPanel(squishy) {
     document.getElementById("info-id").textContent = id;
 }
 
-// Size slider
+// UI controls setup
 function setupSizeSlider() {
     const slider = document.getElementById("size-slider");
     slider.addEventListener("input", () => {
@@ -174,7 +232,6 @@ function setupSizeSlider() {
     });
 }
 
-// Theme selector
 function setupThemeSelector() {
     const select = document.getElementById("theme-select");
     select.addEventListener("change", () => {
@@ -182,7 +239,6 @@ function setupThemeSelector() {
     });
 }
 
-// Dark mode toggle
 function setupDarkToggle() {
     const toggle = document.getElementById("dark-toggle");
     toggle.addEventListener("change", () => {
@@ -190,7 +246,6 @@ function setupDarkToggle() {
     });
 }
 
-// Volume + mute
 function setupAudioControls() {
     const volSlider = document.getElementById("volume-slider");
     const muteBtn = document.getElementById("mute-btn");
@@ -205,12 +260,11 @@ function setupAudioControls() {
     });
 }
 
-// Spotlight toggle
 function setupSpotlightToggle() {
     const btn = document.getElementById("spotlight-toggle");
     btn.addEventListener("click", () => {
         spotlightEnabled = !spotlightEnabled;
-        btn.textContent = spotlightEnabled ? "Spotlight: ON" : "Spotlight mode";
+        btn.textContent = spotlightEnabled ? "Spotlight: ON" : "🔍 Spotlight";
     });
 
     document.getElementById("spotlight-close").addEventListener("click", closeSpotlight);
@@ -219,7 +273,6 @@ function setupSpotlightToggle() {
     });
 }
 
-// Tabs
 function setupTabs() {
     const buttons = document.querySelectorAll(".tab-btn");
     const contents = {
@@ -232,7 +285,6 @@ function setupTabs() {
     buttons.forEach(btn => {
         btn.addEventListener("click", () => {
             const tab = btn.getAttribute("data-tab");
-
             buttons.forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
 
@@ -243,14 +295,13 @@ function setupTabs() {
     });
 }
 
-// Loading overlay
 function hideLoadingOverlay() {
     const overlay = document.getElementById("loading-overlay");
     overlay.style.opacity = "0";
-    setTimeout(() => overlay.style.display = "none", 350);
+    setTimeout(() => overlay.style.display = "none", 400);
 }
 
-// ====== MAIN INIT ======
+// MAIN INIT
 document.addEventListener("DOMContentLoaded", () => {
     setupTabs();
     setupSizeSlider();
@@ -262,40 +313,36 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("random-btn").addEventListener("click", highlightRandomSquishy);
     document.getElementById("shuffle-btn").addEventListener("click", shuffleStyles);
 
-    // Squishy click behavior
+    // Squishy interaction handler
     document.querySelectorAll(".squishy").forEach(squishy => {
         squishy.addEventListener("click", () => {
             const id = parseInt(squishy.getAttribute("data-id"), 10);
-            const audioType = squishy.getAttribute("data-audio");
 
-            // Click animation
+            // Trigger realistic multi-directional top-down squish animation
             squishy.classList.remove("clicked");
-            void squishy.offsetWidth; // force reflow
+            void squishy.offsetWidth;
             squishy.classList.add("clicked");
 
-            // Random morph
-            randomMorph(squishy);
-
-            // Sound
-            if (audioType === "file") {
-                playFileSound(id);
-            } else {
-                playGeneratedSquishySound(id);
+            // Morph shape slightly
+            if (!squishy.classList.contains('sq-needle')) {
+                randomMorph(squishy);
             }
 
-            // Visualizer
+            // Play realistic sound
+            playSquishySound(id);
+
+            // Pulse visualizer
             triggerVisualizer();
 
             // Update info panel
             updateInfoPanel(squishy);
 
-            // Spotlight
+            // Spotlight modal if enabled
             if (spotlightEnabled) {
                 openSpotlight(squishy);
             }
         });
     });
 
-    // Hide loading after short delay
-    setTimeout(hideLoadingOverlay, 900);
+    setTimeout(hideLoadingOverlay, 850);
 });
