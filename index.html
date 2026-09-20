@@ -2,15 +2,22 @@
 <html lang="en" data-theme="pastel">
 <head>
     <meta charset="UTF-8">
-    <title>Squishy Universe Deluxe - Realistic Tactile Experience</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Squishy Universe Deluxe - Ultimate Next-Gen Edition</title>
+    <link id="dynamic-favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <!-- Loading overlay -->
     <div id="loading-overlay">
-        <div class="loader-squishy"></div>
-        <div class="loader-text">Inflating realistic squishies...</div>
+        <div class="loader-container glass">
+            <div class="loader-squishy"></div>
+            <div class="loader-text" id="loader-status">Inflating ultra-realistic foam textures...</div>
+            <div class="progress-track">
+                <div class="progress-bar" id="loader-progress"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Animated background -->
@@ -21,12 +28,14 @@
         <header class="board-header">
             <div class="title-block">
                 <h1>Squishy Universe Deluxe</h1>
-                <p>Ultra-realistic tactile squishies · Dynamic audio auto-detection · Premium UI</p>
+                <p>Ultra-Realistic Foam Physics · Live Cloud Sync · Infinite Asset Engine</p>
             </div>
 
             <div class="board-tabs">
                 <button class="tab-btn active" data-tab="squishies">Squishies</button>
-                <button class="tab-btn" data-tab="info">Info Panel</button>
+                <button class="tab-btn" data-tab="leaderboard">🏆 Leaderboard</button>
+                <button class="tab-btn" data-tab="feed">🔴 Live Feed</button>
+                <button class="tab-btn" data-tab="info">Inspection</button>
                 <button class="tab-btn" data-tab="settings">Settings</button>
                 <button class="tab-btn" data-tab="about">About</button>
             </div>
@@ -67,7 +76,7 @@
 
                 <div class="control-group">
                     <label>Scale Size</label>
-                    <input type="range" id="size-slider" min="0.7" max="1.4" step="0.05" value="1">
+                    <input type="range" id="size-slider" min="0.6" max="1.3" step="0.05" value="1">
                 </div>
 
                 <div class="control-group buttons">
@@ -77,71 +86,39 @@
                 </div>
             </div>
 
-            <!-- Sound visualizer indicator -->
-            <div class="visualizer">
-                <div class="visualizer-pulse" id="visualizer-pulse"></div>
+            <!-- Stats Bar -->
+            <div class="visualizer-bar">
+                <div class="visualizer">
+                    <div class="visualizer-pulse" id="visualizer-pulse"></div>
+                </div>
+                <div class="global-stats glass-sub">
+                    🔥 Global Squeezes: <span id="global-squeeze-count">0</span> | 🤲 Session: <span id="session-squeeze-count">0</span>
+                </div>
             </div>
 
-            <!-- Squishy Grid (35 Realistic Items) -->
-            <div class="squishy-grid">
-                <!-- 1–10: Custom file sounds or auto-synth fallback -->
-                <div class="squishy sq-dumpling" data-id="1" data-name="Steam Dumpling" data-info="Realistic steamed pork & vegetable dim sum dumpling with pinched pleats.">
-                    <div class="sq-inner"><span>🥟</span><div class="shine"></div></div>
-                </div>
-                <div class="squishy sq-needle" data-id="2" data-name="Cactus Needle Squishy" data-info="Prickly yet ultra-soft plush cactus needle cushion toy.">
-                    <div class="sq-inner"><span>🌵</span><div class="shine"></div></div>
-                </div>
-                <div class="squishy sq-butter" data-id="3" data-name="Golden Butter Block" data-info="Melt-in-your-mouth creamy baking butter block squishy.">
-                    <div class="sq-inner"><span>🧈</span><div class="shine"></div></div>
-                </div>
-                <div class="squishy sq-cheese" data-id="4" data-name="Swiss Cheese Wedge" data-info="Classic cartoon swiss cheese with realistic air holes and deep yellow hue.">
-                    <div class="sq-inner"><span>🧀</span><div class="shine"></div></div>
-                </div>
-                <div class="squishy sq-boba" data-id="5" data-name="Taro Boba Pearl" data-info="Chewy purple taro milk tea bubble tea squishy ball.">
-                    <div class="sq-inner"><span>🧋</span><div class="shine"></div></div>
-                </div>
-                <div class="squishy sq-macaron" data-id="6" data-name="Strawberry Macaron" data-info="French almond pastry sandwich with thick creamy filling.">
-                    <div class="sq-inner"><span>🧁</span><div class="shine"></div></div>
-                </div>
-                <div class="squishy sq-pudding" data-id="7" data-name="Caramel Pudding" data-info="Wobbly Japanese custard pudding with glossy caramel syrup top.">
-                    <div class="sq-inner"><span>🍮</span><div class="shine"></div></div>
-                </div>
-                <div class="squishy sq-paw" data-id="8" data-name="Kitty Toe Beans" data-info="Super-soft pink cat paw pad plush squishy.">
-                    <div class="sq-inner"><span>🐾</span><div class="shine"></div></div>
-                </div>
-                <div class="squishy sq-peach" data-id="9" data-name="Velvet Peach" data-info="Fuzzy sweet Japanese summer peach squishy.">
-                    <div class="sq-inner"><span>🍑</span><div class="shine"></div></div>
-                </div>
-                <div class="squishy sq-star" data-id="10" data-name="Magical Star" data-info="Glowing cosmic star squishy filled with slow-rise foam.">
-                    <div class="sq-inner"><span>⭐</span><div class="shine"></div></div>
-                </div>
+            <!-- Dynamic Squishy Grid -->
+            <div class="squishy-grid" id="squishy-grid"></div>
+        </section>
 
-                <!-- 11–35: Dynamically synthesized or additional files -->
-                <div class="squishy sq-dumpling" data-id="11" data-name="Pan-Fried Bao" data-info="Crispy golden bottom soup dumpling squishy."><div class="sq-inner"><span>🥟</span><div class="shine"></div></div></div>
-                <div class="squishy sq-needle" data-id="12" data-name="Pine Needle Cluster" data-info="Soft evergreen pine tree needle cushion."><div class="sq-inner"><span>🌲</span><div class="shine"></div></div></div>
-                <div class="squishy sq-butter" data-id="13" data-name="Garlic Herb Butter" data-info="Savory whipped garlic butter stick."><div class="sq-inner"><span>🧄</span><div class="shine"></div></div></div>
-                <div class="squishy sq-cheese" data-id="14" data-name="Cheddar Wedge" data-info="Rich sharp cheddar cheese block."><div class="sq-inner"><span>🧀</span><div class="shine"></div></div></div>
-                <div class="squishy sq-boba" data-id="15" data-name="Matcha Milk Tea" data-info="Green tea boba pearl squishy."><div class="sq-inner"><span>🍵</span><div class="shine"></div></div></div>
-                <div class="squishy sq-macaron" data-id="16" data-name="Blueberry Macaron" data-info="Sweet berry cream pastry shell."><div class="sq-inner"><span>🫐</span><div class="shine"></div></div></div>
-                <div class="squishy sq-pudding" data-id="17" data-name="Matcha Jelly" data-info="Bouncy green tea gelatin cube."><div class="sq-inner"><span>🟢</span><div class="shine"></div></div></div>
-                <div class="squishy sq-paw" data-id="18" data-name="Golden Puppy Paw" data-info="Warm puppy toe bean cushion."><div class="sq-inner"><span>🐾</span><div class="shine"></div></div></div>
-                <div class="squishy sq-peach" data-id="19" data-name="Nectarine Puff" data-info="Smooth skin sweet nectarine squishy."><div class="sq-inner"><span>🍑</span><div class="shine"></div></div></div>
-                <div class="squishy sq-star" data-id="20" data-name="Supernova Star" data-info="Exploding radiant energy star."><div class="sq-inner"><span>🌟</span><div class="shine"></div></div></div>
-                <div class="squishy sq-dumpling" data-id="21" data-name="Crystal Har Gow" data-info="Translucent shrimp dumpling."><div class="sq-inner"><span>🦐</span><div class="shine"></div></div></div>
-                <div class="squishy sq-needle" data-id="22" data-name="Silver Sewing Needle" data-info="Sleek shiny metal needle pin cushion."><div class="sq-inner"><span>🪡</span><div class="shine"></div></div></div>
-                <div class="squishy sq-butter" data-id="23" data-name="Whipped Spread" data-info="Light whipped table butter."><div class="sq-inner"><span>🧈</span><div class="shine"></div></div></div>
-                <div class="squishy sq-cheese" data-id="24" data-name="Brie Wheel" data-info="Creamy French brie cheese wedge."><div class="sq-inner"><span>🧀</span><div class="shine"></div></div></div>
-                <div class="squishy sq-boba" data-id="25" data-name="Brown Sugar Boba" data-info="Caramel tiger stripe boba pearl."><div class="sq-inner"><span>🧋</span><div class="shine"></div></div></div>
-                <div class="squishy sq-macaron" data-id="26" data-name="Matcha Macaron" data-info="Japanese green tea macaron."><div class="sq-inner"><span>🍵</span><div class="shine"></div></div></div>
-                <div class="squishy sq-pudding" data-id="27" data-name="Mango Pudding" data-info="Tropical sweet golden mango dessert."><div class="sq-inner"><span>🥭</span><div class="shine"></div></div></div>
-                <div class="squishy sq-paw" data-id="28" data-name="Polar Bear Paw" data-info="Fluffy snow bear paw pad."><div class="sq-inner"><span>🐾</span><div class="shine"></div></div></div>
-                <div class="squishy sq-peach" data-id="29" data-name="White Peach" data-info="Delicate fragrant white peach."><div class="sq-inner"><span>🍑</span><div class="shine"></div></div></div>
-                <div class="squishy sq-star" data-id="30" data-name="Galaxy Nebula Star" data-info="Deep space purple nebula star."><div class="sq-inner"><span>🌌</span><div class="shine"></div></div></div>
-                <div class="squishy sq-dumpling" data-id="31" data-name="Xiao Long Bao" data-info="Juicy soup-filled steamed dumpling."><div class="sq-inner"><span>🥟</span><div class="shine"></div></div></div>
-                <div class="squishy sq-needle" data-id="32" data-name="Pinecone Scales" data-info="Textured rustic pine needle scales."><div class="sq-inner"><span>🌰</span><div class="shine"></div></div></div>
-                <div class="squishy sq-butter" data-id="33" data-name="Honey Butter" data-info="Sweet honey-infused melting butter."><div class="sq-inner"><span>🍯</span><div class="shine"></div></div></div>
-                <div class="squishy sq-cheese" data-id="34" data-name="Mozzarella Orb" data-info="Stretchy fresh mozzarella ball."><div class="sq-inner"><span>🧀</span><div class="shine"></div></div></div>
-                <div class="squishy sq-boba" data-id="35" data-name="Fruit Popping Boba" data-info="Tropical fruit tea popping boba ball."><div class="sq-inner"><span>🥭</span><div class="shine"></div></div></div>
+        <!-- TAB: LEADERBOARD -->
+        <section class="tab-content" id="tab-leaderboard">
+            <div class="leaderboard-panel glass-sub">
+                <h2>🏆 Global Squeeze Leaderboard</h2>
+                <p>Real-time ranking of the most popular squishies synced securely via Firebase.</p>
+                <div id="leaderboard-list" class="leaderboard-list glass">
+                    <div class="leaderboard-loading">Loading leaderboard data...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: LIVE FEED -->
+        <section class="tab-content" id="tab-feed">
+            <div class="feed-panel glass-sub">
+                <h2>🔴 Live Global Activity Feed</h2>
+                <p>Real-time interaction stream from users across the universe.</p>
+                <div id="live-activity-feed" class="feed-list glass">
+                    <div class="leaderboard-loading">Connecting to activity stream...</div>
+                </div>
             </div>
         </section>
 
@@ -149,12 +126,18 @@
         <section class="tab-content" id="tab-info">
             <div class="info-panel glass-sub">
                 <h2>Squishy Inspection Panel</h2>
-                <p>Click any squishy on the board to analyze its realistic properties, shape details, and active audio source.</p>
+                <p>Inspect tactile properties, reference models, and cloud records.</p>
                 <div class="info-details glass">
                     <div class="info-row"><strong>Squishy Name:</strong> <span id="info-name">None selected</span></div>
                     <div class="info-row"><strong>Tactile Description:</strong> <span id="info-desc">Click a squishy to view detailed info.</span></div>
+                    <div class="info-row"><strong>Total Squeezes:</strong> <span id="info-squeezes">0</span></div>
+                    <div class="info-row"><strong>Cloud Favorites:</strong> <span id="info-favorites">0</span></div>
                     <div class="info-row"><strong>Audio Engine:</strong> <span id="info-audio">—</span></div>
                     <div class="info-row"><strong>Unique ID:</strong> <span id="info-id">—</span></div>
+                    <div class="control-group buttons" style="margin-top: 10px;">
+                        <button id="favorite-btn" class="btn small">❤️ Favorite</button>
+                        <button id="react-btn" class="btn small">🎉 Send Reaction</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -162,13 +145,30 @@
         <!-- TAB: SETTINGS -->
         <section class="tab-content" id="tab-settings">
             <div class="settings-panel glass-sub">
-                <h2>Universe Settings</h2>
-                <p>Configure your tactile environment, sound behavior, and visual themes.</p>
-                <ul class="settings-list">
-                    <li>🎨 **Themes & Dark Mode:** Instantly shift between Pastel, Neon, Sunset, Glass, and Ocean aesthetics.</li>
-                    <li>🔊 **Smart Audio Engine:** Automatically detects custom files (`squishy1.wav`, etc.) and synthesizes ultra-realistic squish sounds for the rest.</li>
-                    <li>🔍 **Spotlight Mode:** Zoom in for close-up inspection and relaxing tactile play.</li>
-                    <li>✨ **Fluid Physics:** Top-down multi-directional squish animations mimicking real slow-rise foam toys.</li>
+                <h2>Universe Settings & Customization</h2>
+                <p>Tune your physical feedback, audio filters, and database options.</p>
+                <ul class="settings-list glass" style="padding: 16px; margin-top: 12px; display: grid; gap: 12px;">
+                    <li>
+                        <label style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+                            <span>✨ Foam Particle Confetti on Squeeze</span>
+                            <input type="checkbox" id="setting-confetti" checked style="width:18px; height:18px;">
+                        </label>
+                    </li>
+                    <li>
+                        <label style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+                            <span>🔊 Dynamic Audio Slicing (Max 2.5s)</span>
+                            <input type="checkbox" id="setting-audio-trim" checked style="width:18px; height:18px;">
+                        </label>
+                    </li>
+                    <li>
+                        <label style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+                            <span>☁️ Firebase Cloud Sync Status</span>
+                            <span style="color: #00b894; font-weight: 800;">Connected & Active</span>
+                        </label>
+                    </li>
+                    <li>
+                        <button id="reset-session-btn" class="btn small" style="background: #e17055;">Reset Local Session Stats</button>
+                    </li>
                 </ul>
             </div>
         </section>
@@ -178,10 +178,7 @@
             <div class="about-panel glass-sub">
                 <h2>About Squishy Universe Deluxe</h2>
                 <p>
-                    Welcome to the ultimate digital tactile playground! Featuring 35 ultra-realistic squishies including handmade dumplings, cactus needles, creamy butter blocks, cheeses, and adorable plush treats.
-                </p>
-                <p>
-                    Built with advanced Web Audio API procedural synthesis and dynamic file handling. Add your own custom `.wav` or `.mp3` files named `squishy1.wav`, `squishy2.wav`, etc., and the app will instantly adopt them while automatically generating pristine, satisfying squish audio for all remaining items.
+                    The ultimate responsive tactile experience featuring reference-accurate polyurethane foam models (Dumplings, NeeDoh Cubes, Butter Blocks), smart 2.5s audio slicing, canvas backdrop removal, and real-time Firebase cloud sync.
                 </p>
             </div>
         </section>
@@ -204,6 +201,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
